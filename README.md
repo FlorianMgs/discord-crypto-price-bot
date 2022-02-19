@@ -19,7 +19,7 @@ source venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-- You can launch the bot and add it to your Discord server:
+- You can launch the bot and [add it to your Discord server](https://discordjs.guide/preparations/adding-your-bot-to-servers.html#creating-and-using-your-invite-link):
 ```
 python main.py
 ```
