@@ -5,7 +5,7 @@ Cryptocurrencies Price Bot with Chart for Discord. Support every coin listed on 
 - Install Python.
 - Clone this repo.
 - Head over to [Discord Dev Portal](https://discord.com/developers/applications), create a new bot and get a token.
-- Set "Send Messages" and "Attach Files" permissions.
+- Set "Send Messages" and "Attach Files" permissions. Activate al intents.
 - Create a .env file in the project root folder, and fill it with that:
 ```
 DISCORD_TOKEN=your_discord_token
