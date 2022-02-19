@@ -1,15 +1,14 @@
 import discord
-from utils import nickname_generator, get_random_image, cg, format_crypto_data, get_currency, search_coin, draw_chart
-from vars import bull_beg, bull_mid, bull_end
+from dotenv import load_dotenv
+from utils import get_random_image, cg, format_crypto_data, get_currency, search_coin, draw_chart
 from discord.ext import commands
 import io
+import os
 from PIL import Image
-import random
-
 
 # globals vars
-TOKEN = "OTI5ODIzNzQ3NzMxNTE3NDUx.Yds72A.2gh3aDqg3aGdC51BSVbhHtdFmpg"
-award_id = 192352519534411777
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
 coins_list = cg.get_coins_list()
 
 
@@ -24,61 +23,12 @@ async def on_ready():
     print(f'{bot.user} succesfully logged in!')
 
 
-# Fun commands
-
-@bot.command()
-@commands.has_permissions(change_nickname=True)
-async def virg(ctx):
-    """
-    Poste un nom marrant + une image marrante
-    """
-    nickname = nickname_generator()
-    if len(nickname) <= 32:
-        award = await ctx.message.guild.query_members(user_ids=[award_id])
-        award = award[0]
-        await award.edit(nick=nickname)
-    img = discord.File(get_random_image('award'))
-    await ctx.send(nickname, file=img)
-
-
-@bot.command()
-@commands.has_permissions(change_nickname=True)
-async def name(ctx):
-    """
-    Poste un nom marrant et change le pseudal de Renaud
-    """
-    nickname = nickname_generator()
-    if len(nickname) <= 32:
-        award = await ctx.message.guild.query_members(user_ids=[award_id])
-        award = award[0]
-        await award.edit(nick=nickname)
-    await ctx.send(nickname)
-
-
-@bot.command()
-async def fun(ctx):
-    """
-    Poste l'une des innombrables images marrantes de Renaud
-    """
-    img = discord.File(get_random_image('award'))
-    await ctx.send(file=img)
-
-
-@bot.command()
-async def jap(ctx):
-    """
-    Poste l'un des drapeaux du japon
-    """
-    img = discord.File(get_random_image('japon'))
-    await ctx.send(file=img)
-
-
 # Crypto-related commands
 
 @bot.command()
 async def price(ctx, *args):
     # loading message
-    await ctx.send("""**La Virg'** exauce ton souhait...""")
+    await ctx.send("""**The Oracle** is gathering data...""")
 
     # getting currency
     currency = get_currency(args)
@@ -98,21 +48,15 @@ async def price(ctx, *args):
 
         if data[coin][f'{currency[0]}_24h_change'] < 0:
             # Bear
-            award_img = discord.File(get_random_image('cg/dump'))
-            award_comment = """\n**Bon, le bearmarket... *'remonte son fute, commence a chialer'***"""
-            emoji = random.choice(["🚨", "📉", "🕎", "✡", "🚬", "🖕", "💀", "💩", "👎", "😨", "🐌", "🐒", "🦐", "🌪️"])
+            img = discord.File(get_random_image('cg/dump'))
         else:
             # Bull
-            award_img = discord.File(get_random_image('cg/pump'))
-            award_comment = f"""\n**{random.choice(bull_beg)}, {random.choice(bull_mid)}... *'{random.choice(bull_end)}'***"""
-            emoji = random.choice(["🚀", "🤙", "💸", "🔥", "👌", "📈", "🤘", "👍", "🧠", "👀", "🍆", "🤑", "💰", "🤌", "💪", "🦍", "💦", "☄️"])
-
+            img = discord.File(get_random_image('cg/pump'))
         bot_resp = f"> **{args[0].upper()}**" + \
                    f"\n\n• Price: **{format_crypto_data(str((price)))} {currency[1]}**" + \
                    f"\n• Market Cap: **{format_crypto_data(str(round(data[coin][f'{currency[0]}_market_cap'], 2)))} {currency[1]}**" + \
                    f"\n• 24h Volume: **{format_crypto_data(str(round(data[coin][f'{currency[0]}_24h_vol'], 2)))} {currency[1]}**" + \
-                   f"\n• 24h Change: **{format_crypto_data(str(round(data[coin][f'{currency[0]}_24h_change'], 3)))} %**  {emoji}" + \
-                   f"\n{award_comment}"
+                   f"\n• 24h Change: **{format_crypto_data(str(round(data[coin][f'{currency[0]}_24h_change'], 3)))} %**"
 
         # drawing chart
         image_data = draw_chart(coin, "1", currency[0])
@@ -121,23 +65,22 @@ async def price(ctx, *args):
         image.save(arr, format='png')
         arr.seek(0)
         await ctx.send(bot_resp, file=discord.File(fp=arr, filename="chart.png"))
-        await ctx.send(file=award_img)
+        await ctx.send(file=img)
 
     except KeyError:
-        bot_resp = "T'es sûr d'avoir bien écrit le nom du coin, connard ?"
-        award_img = discord.File('imgs/cg/404.jpg')
-        await ctx.send(bot_resp, file=award_img)
+        bot_resp = "Are you sure you spelled the coin name correctly ?"
+        await ctx.send(bot_resp)
 
     except TypeError:
-        bot_resp = "L'Oracle a rencontré une erreur..."
-        award_img = discord.File('imgs/cg/error.png')
-        await ctx.send(bot_resp, file=award_img)
+        bot_resp = "**The Oracle** has encountered an error..."
+        img = discord.File('imgs/cg/error.png')
+        await ctx.send(bot_resp, file=img)
 
 
 @bot.command()
 async def chart(ctx, coin, days):
 
-    await ctx.send("""**La Virg'** invoque la Sainte Charte...""")
+    await ctx.send("""**The Oracle** is getting the chart...""")
 
     try:
         coin = search_coin(coin, coins_list)
@@ -151,14 +94,13 @@ async def chart(ctx, coin, days):
         await ctx.send(file=discord.File(fp=arr, filename="chart.png"))
 
     except KeyError:
-        bot_resp = "T'es sûr d'avoir bien écrit le nom du coin, connard ?"
-        award_img = discord.File('imgs/cg/404.jpg')
-        await ctx.send(bot_resp, file=award_img)
+        bot_resp = "Are you sure you spelled the coin name correctly ?"
+        await ctx.send(bot_resp)
 
     except TypeError:
-        bot_resp = "L'Oracle a rencontré une erreur..."
-        award_img = discord.File('imgs/cg/error.png')
-        await ctx.send(bot_resp, file=award_img)
+        bot_resp = "**The Oracle** has encountered an error..."
+        img = discord.File('imgs/cg/error.png')
+        await ctx.send(bot_resp, file=img)
 
 
 # Errors handling
@@ -166,13 +108,13 @@ async def chart(ctx, coin, days):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
-        bot_resp = "**La Virg'** ne peux pas invoquer la chart si tu ne précises pas de coin / de jours." + \
-                   "\nRappel: **!chart <coin> <days>**"
-        award_img = discord.File('imgs/cg/404.jpg')
-        await ctx.send(bot_resp, file=award_img)
+        bot_resp = "**The oracle** can't invoke the chart if you don't specify coin name/days." + \
+                   "\nCommand: **!chart <coin> <days>**"
+        img = discord.File('imgs/cg/404.jpg')
+        await ctx.send(bot_resp, file=img)
 
     if isinstance(error, commands.errors.CommandNotFound):
-        await ctx.send("**La Virg'** ne peux pas répondre à une telle hérésie. Connard.")
+        await ctx.send("Invalid command.")
 
 
 bot.run(TOKEN)

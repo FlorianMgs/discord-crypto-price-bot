@@ -1,12 +1,9 @@
-import requests
 import random
 import plotly.graph_objects as go
 from plotly.graph_objects import Layout
 from datetime import datetime
-from bs4 import BeautifulSoup
 from os import listdir
 from os.path import isfile, join
-from vars import first_names, last_names
 from pycoingecko import CoinGeckoAPI
 
 
@@ -16,17 +13,6 @@ cg = CoinGeckoAPI()
 def get_random_image(path):
     imgs = [f for f in listdir(f'imgs/{path}/') if isfile(join(f'imgs/{path}/', f))]
     return f'imgs/{path}/{random.choice(imgs)}'
-
-
-def nickname_generator():
-    random_word_url = "https://en.wiktionary.org/wiki/Special:RandomInCategory/French_lemmas#French"
-    resp = requests.get(random_word_url)
-    soup = BeautifulSoup(resp.text, 'lxml')
-    word = soup.title.text.replace(' - Wiktionary', '').title()
-
-    emojis = ["🤙", "👌", "🤌", "🖖", "🧠", "🐌", "💦", "🍆", "🍑", "🕎", "✡", "💸", "🔞", "🚬", "🍺"]
-
-    return f'{random.choice(first_names)} "{word}" {random.choice(last_names)} {random.choice(emojis)}'
 
 
 # Price utils
